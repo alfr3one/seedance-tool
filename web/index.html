@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dola Pool Admin Dashboard</title>
+<style>
+:root{--bg:#f2f5f4;--card:#fff;--line:#e5e9e8;--text:#1f2a28;--sub:#7a8a86;--accent:#00a870;--accent-d:#008e5d;--red:#e5484d;--orange:#f59e0b;--blue:#3b82f6;--gray:#9aa8a4}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);font-size:14px}
+a{color:var(--accent);text-decoration:none}
+header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;height:56px;padding:0 20px;background:var(--card);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px;font-weight:600;font-size:16px}
+.dot{width:12px;height:12px;border-radius:3px;background:var(--accent)}
+.head-r{display:flex;align-items:center;gap:14px;color:var(--sub);font-size:13px}
+.head-r label{display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none}
+nav{display:flex;gap:4px;padding:12px 20px 0;border-bottom:1px solid var(--line);background:var(--bg)}
+nav button{border:none;background:none;padding:10px 16px;font-size:14px;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent}
+nav button.on{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
+main{padding:20px;max-width:1180px;margin:0 auto}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:16px}
+.card h3{font-size:14px;margin-bottom:14px;font-weight:600}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px}
+.stat{padding:16px;border-radius:12px;color:#fff;display:flex;flex-direction:column;gap:6px}
+.stat .v{font-size:28px;font-weight:700}
+.stat .l{font-size:13px;opacity:.85}
+.s1{background:linear-gradient(135deg,#00b875,#00945f)}.s2{background:linear-gradient(135deg,#e5484d,#b93237)}
+.s3{background:linear-gradient(135deg,#3b82f6,#2563eb)}.s4{background:linear-gradient(135deg,#f59e0b,#d97706)}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:middle;font-size:13px}
+th{color:var(--sub);font-weight:500;white-space:nowrap}
+td .prompt{display:block;max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.badge{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12px;white-space:nowrap}
+.b-green{background:#e6f7f0;color:#00945f}.b-red{background:#fdeaea;color:#c03237}
+.b-orange{background:#fef4e6;color:#c77a00}.b-blue{background:#e8f1fe;color:#2563eb}
+.b-gray{background:#eef1f0;color:#7a8a86}
+.btn{border:1px solid var(--line);background:#fff;color:var(--text);padding:7px 14px;border-radius:8px;cursor:pointer;font-size:13px}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn-p{background:var(--accent);color:#fff;border:none}
+.btn-p:hover{background:var(--accent-d);color:#fff}
+.btn-danger{color:#c03237}
+.btn-danger:hover{border-color:#e5484d;color:#e5484d}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.toolbar .hint{color:var(--sub);font-size:12px}
+.sw{position:relative;display:inline-block;width:36px;height:20px}
+.sw input{opacity:0;width:0;height:0}
+.sw i{position:absolute;inset:0;background:#cfd8d5;border-radius:999px;transition:.2s;cursor:pointer}
+.sw i:before{content:"";position:absolute;width:16px;height:16px;left:2px;top:2px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 1px 2px rgba(0,0,0,.2)}
+.sw input:checked+i{background:var(--accent)}
+.sw input:checked+i:before{transform:translateX(16px)}
+.mask{position:fixed;inset:0;background:rgba(20,30,28,.45);display:flex;align-items:center;justify-content:center;z-index:100}
+.mask .box{background:#fff;border-radius:14px;padding:28px;width:320px}
+.mask h2{font-size:17px;margin-bottom:18px}
+.mask input{width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:8px;margin-bottom:14px;font-size:14px}
+.mask .err{color:#c03237;font-size:12px;margin-bottom:10px;display:none}
+.mask button{width:100%}
+.dialog{position:fixed;inset:0;background:rgba(20,30,28,.45);display:flex;align-items:center;justify-content:center;z-index:90}
+.dialog .box{background:#fff;border-radius:14px;padding:24px;width:400px;max-width:92vw;max-height:86vh;overflow:auto}
+.dialog h2{font-size:16px;margin-bottom:16px}
+.dialog label{display:block;font-size:12px;color:var(--sub);margin:10px 0 4px}
+.dialog input{width:100%;padding:8px 12px;border:1px solid var(--line);border-radius:8px;font-size:13px}
+.dialog .row{display:flex;gap:10px;justify-content:flex-end;margin-top:18px}
+.keyfull{font-family:monospace;background:#f5f7f6;border:1px dashed var(--line);border-radius:8px;padding:12px;word-break:break-all;margin:10px 0}
+.chart{display:flex;align-items:flex-end;gap:14px;height:140px;padding:0 4px}
+.chart .col{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;height:100%;justify-content:flex-end}
+.chart .bars{display:flex;gap:4px;align-items:flex-end;height:110px}
+.chart .bar{border-radius:3px 3px 0 0;width:16px}
+.chart .lbl{font-size:11px;color:var(--sub)}
+.empty{padding:34px;text-align:center;color:var(--sub)}
+.video-wrap{display:flex;gap:8px;align-items:center}
+.tiny{font-size:12px;color:var(--sub)}
+.account-id{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;color:#52615d;font-weight:600}
+/* Generate tab */
+.gen-grid{display:grid;grid-template-columns:1fr 340px;gap:16px;align-items:start}
+.gen-form{display:flex;flex-direction:column;gap:14px}
+.form-group{display:flex;flex-direction:column;gap:6px}
+.form-group label{font-size:12px;font-weight:600;color:var(--sub);text-transform:uppercase;letter-spacing:.5px}
+.form-group textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;font-size:13px;resize:vertical;font-family:inherit;min-height:90px;transition:border-color .15s}
+.form-group textarea:focus,.form-group input:focus,.form-group select:focus{outline:none;border-color:var(--accent)}
+.form-group select{width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:8px;font-size:13px;background:#fff;cursor:pointer}
+.pills{display:flex;flex-wrap:wrap;gap:8px}
+.pill{border:1.5px solid var(--line);background:#fff;border-radius:8px;padding:7px 14px;font-size:13px;cursor:pointer;transition:all .15s;font-weight:500;color:var(--sub)}
+.pill.on{border-color:var(--accent);background:#e8f7f0;color:var(--accent-d);font-weight:600}
+.pill:hover:not(.on){border-color:#aabcb8;color:var(--text)}
+.gen-btn{width:100%;padding:12px;font-size:15px;font-weight:600;border:none;border-radius:10px;background:var(--accent);color:#fff;cursor:pointer;transition:background .15s;letter-spacing:.3px}
+.gen-btn:hover{background:var(--accent-d)}
+.gen-btn:disabled{background:#a0c9b6;cursor:not-allowed}
+.result-panel{display:flex;flex-direction:column;gap:12px}
+.result-empty{border:2px dashed var(--line);border-radius:12px;padding:60px 20px;text-align:center;color:var(--sub);font-size:13px}
+.result-card{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
+.result-card video{width:100%;display:block;background:#000}
+.result-card .result-info{padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+.result-card .result-row{display:flex;justify-content:space-between;align-items:center}
+.result-actions{display:flex;gap:8px}
+.status-bar{padding:10px 14px;border-radius:10px;font-size:13px;font-weight:500;margin-bottom:4px}
+.status-bar.queued{background:#f0f0f0;color:#666}
+.status-bar.processing{background:#e8f1fe;color:#2563eb}
+.status-bar.completed{background:#e6f7f0;color:#00945f}
+.status-bar.failed{background:#fdeaea;color:#c03237}
+.spin{display:inline-block;animation:spin 1s linear infinite;margin-right:6px}
+.refimg-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.refimg-item{position:relative;width:60px;height:60px;border-radius:8px;overflow:hidden;border:1px solid var(--line)}
+.refimg-item img{width:100%;height:100%;object-fit:cover}
+.refimg-item .rm{position:absolute;top:2px;right:2px;width:16px;height:16px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;border:none;cursor:pointer;font-size:10px;display:flex;align-items:center;justify-content:center;line-height:1}
+.refimg-add{width:60px;height:60px;border-radius:8px;border:1.5px dashed var(--line);background:#fafbfa;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:22px;color:var(--sub)}
+.refimg-add:hover{border-color:var(--accent);color:var(--accent)}
+.task-poll-list{display:flex;flex-direction:column;gap:8px}
+#batchTable{overflow-x:auto}
+#batchTable table{min-width:1320px}
+.task-account{border:1px solid #dfe5e8;border-radius:10px;margin:12px 0;overflow:hidden}
+.task-account>summary{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:14px;cursor:pointer;background:#f6f8fa;list-style:none}
+.task-account>summary::before{content:'▸';color:#64748b}
+.task-account[open]>summary::before{content:'▾'}
+.task-account>summary:focus-visible{outline:2px solid #00ad7c;outline-offset:-2px}
+.task-account-counts{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto}
+.task-account-body{overflow-x:auto;padding:0 12px 12px}
+.task-account-body table{min-width:1050px}
+.task-error{max-width:300px;white-space:normal;overflow-wrap:anywhere;color:#b42318}
+.tpoll{border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:10px;font-size:13px;cursor:pointer;transition:border-color .15s}
+.tpoll:hover{border-color:var(--accent)}
+.tpoll .prompt-t{flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:var(--text)}
+.tpoll .meta-t{font-size:11px;color:var(--sub);white-space:nowrap}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:720px){.gen-grid{grid-template-columns:1fr;}.cards{grid-template-columns:repeat(2,1fr);}}
+</style>
+</head>
+<body>
+<div id="loginMask" class="mask" style="display:none">
+  <div class="box">
+    <h2>Admin Dashboard Login</h2>
+    <input id="loginKey" type="password" placeholder="Admin Password" onkeydown="if(event.key==='Enter')submitLogin()">
+    <div class="err" id="loginErr">Incorrect password</div>
+    <button class="btn btn-p" onclick="submitLogin()">Login</button>
+  </div>
+</div>
+
+<header>
+  <div class="brand"><span class="dot"></span>Dola Pool Dashboard</div>
+  <div class="head-r">
+    <label><input type="checkbox" id="autoCk" checked onchange="autoRefresh=this.checked">Auto Refresh</label>
+    <span id="lastUpdate"></span>
+    <button class="btn" onclick="refresh()">Refresh</button>
+    <button class="btn" onclick="logout()" title="Logout">Logout</button>
+  </div>
+</header>
+
+<nav>
+  <button class="on" data-tab="dash" onclick="switchTab('dash')">Dashboard</button>
+  <button data-tab="generate" onclick="switchTab('generate')">🎬 Generate Video</button>
+  <button data-tab="batch" onclick="switchTab('batch')">⚡ Batch Gen</button>
+  <button data-tab="accounts" onclick="switchTab('accounts')">Accounts</button>
+  <button data-tab="tasks" onclick="switchTab('tasks')">Task Queue</button>
+  <button data-tab="keys" onclick="switchTab('keys')">API Keys</button>
+  <button data-tab="settings" onclick="switchTab('settings')">⚙ Settings</button>
+</nav>
+
+<main>
+  <section id="tab-dash">
+    <div class="cards" id="statCards"></div>
+    <div class="card"><h3>7-Day Video Generation Trend</h3><div class="chart" id="chart"></div></div>
+    <div class="card"><h3>Account Pool Overview</h3><div id="perAccount"></div></div>
+  </section>
+
+  <!-- ====== GENERATE VIDEO TAB ====== -->
+  <section id="tab-generate" style="display:none">
+    <div class="gen-grid">
+      <!-- LEFT: Form -->
+      <div class="card">
+        <h3 style="margin-bottom:16px">🎬 Create Video</h3>
+        <div class="gen-form">
+
+          <div class="form-group">
+            <label>Prompt</label>
+            <textarea id="g_prompt" placeholder="Describe what you want to generate, e.g. A cinematic shot of a cat chasing a butterfly on green grass, 4K, golden hour..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Model</label>
+            <div class="pills" id="g_model_pills">
+              <button class="pill on" data-val="seedance-2.0" onclick="pickPill('g_model_pills',this)">Seedance 2.0</button>
+              <button class="pill" data-val="seedance-2.5" onclick="pickPill('g_model_pills',this)">Seedance 2.5</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Aspect Ratio</label>
+            <div class="pills" id="g_ratio_pills">
+              <button class="pill" data-val="16:9" onclick="pickPill('g_ratio_pills',this)">16:9 Landscape</button>
+              <button class="pill on" data-val="9:16" onclick="pickPill('g_ratio_pills',this)">9:16 Portrait</button>
+              <button class="pill" data-val="1:1" onclick="pickPill('g_ratio_pills',this)">1:1 Square</button>
+              <button class="pill" data-val="4:3" onclick="pickPill('g_ratio_pills',this)">4:3</button>
+              <button class="pill" data-val="3:4" onclick="pickPill('g_ratio_pills',this)">3:4</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Duration</label>
+            <div class="pills" id="g_dur_pills">
+              <button class="pill on" data-val="10" onclick="pickPill('g_dur_pills',this)">10s</button>
+              <button class="pill" data-val="15" onclick="pickPill('g_dur_pills',this)">15s</button>
+              <button class="pill" data-val="30" onclick="pickPill('g_dur_pills',this)">30s</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Reference Images (Optional)</label>
+            <div class="refimg-list" id="g_refimgs">
+              <div class="refimg-add" title="Add image URL" onclick="addRefImg()">＋</div>
+            </div>
+            <span class="tiny" style="margin-top:4px">Click + to add image URL (up to 5 images)</span>
+          </div>
+
+          <div class="form-group">
+            <label>API Key (Optional — leave blank for dev mode)</label>
+            <input type="password" id="g_apikey" placeholder="sk-…  (leave empty if no auth configured)">
+          </div>
+
+          <button class="gen-btn" id="genBtn" onclick="submitGenerate()">⚡ Generate Video</button>
+        </div>
+      </div>
+
+      <!-- RIGHT: Result & Recent -->
+      <div class="result-panel">
+        <div class="card">
+          <h3 style="margin-bottom:12px">Result</h3>
+          <div id="g_result">
+            <div class="result-empty">Submit a prompt to start generating your video.</div>
+          </div>
+        </div>
+        <div class="card" id="g_recent_card">
+          <h3 style="margin-bottom:12px">Recent Tasks</h3>
+          <div class="task-poll-list" id="g_recent"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== BATCH GEN TAB ====== -->
+  <section id="tab-batch" style="display:none">
+    <div class="card">
+      <div class="toolbar">
+        <h3 style="margin:0">⚡ Batch Generate</h3>
+        <div style="display:flex;align-items:center;gap:8px">
+          <button class="btn" onclick="loadBatch()">↻ Reload profiles</button>
+          <button class="btn btn-p" id="batchRunAllBtn" onclick="submitBatchGenerate()">▶ Run up to 10 videos</button>
+        </div>
+      </div>
+      <p class="tiny" style="color:var(--sub); margin-top:-8px; margin-bottom:16px;">
+        Each row uses one dedicated profile. Configure every video separately, then submit up to 10 profiles concurrently.
+      </p>
+      <div class="form-group" style="max-width:520px;margin-bottom:16px">
+        <label>API Key</label>
+        <input type="password" id="batch_apikey" placeholder="Required when Client API authentication is enabled">
+        <span class="tiny">Used for both task submission and status polling.</span>
+      </div>
+      <div id="batchSummary" class="hint" style="margin-bottom:12px">Loading available profiles…</div>
+      <label for="batch_paste">Paste prompt list</label>
+      <textarea id="batch_paste" rows="3" style="width:100%;box-sizing:border-box" placeholder="Ctrl+V a list headed Prompt 1, Prompt 2, … to fill accounts from top to bottom."></textarea>
+      <button type="button" class="btn" id="batchDistributeBtn" onclick="distributeBatchPrompts()">Điền lần lượt</button>
+      <button type="button" class="btn" id="batchClearPromptsBtn" onclick="clearBatchPrompts()">Dọn prompt (giữ Failed)</button>
+      <div id="batchPasteStatus" class="hint" role="status" aria-live="polite">Only prompts are replaced. Model, ratio and duration stay unchanged.</div>
+      <div id="batchTable"></div>
+    </div>
+  </section>
+
+  <section id="tab-accounts" style="display:none">
+    <div class="card">
+      <div class="toolbar">
+        <h3 style="margin:0">Account List</h3>
+        <button class="btn btn-p" onclick="openAddAccount()">＋ Add Account</button>
+        <button class="btn" id="downloadLatestBtn" onclick="downloadLatestVideos()">⬇ Tải video hàng loạt (ZIP)</button>
+      </div>
+      <div id="accountsTable"></div>
+      <div id="downloadLatestStatus" class="hint" role="status">Tải video hoàn thành mới nhất của mỗi account. Không bao gồm task đang chạy hoặc Failed.</div>
+    </div>
+  </section>
+
+  <section id="tab-tasks" style="display:none">
+    <div class="card">
+      <div class="toolbar">
+        <h3 style="margin:0">Task Queue · Theo account</h3>
+        <button class="btn btn-danger" onclick="clearFailedTasks()">✕ Clear Failed Tasks</button>
+      </div>
+      <p class="hint">50 task gần nhất, nhóm theo account thực hiện hoặc account được chỉ định. Bấm tên account để thu gọn/mở rộng.</p>
+      <div id="tasksTable"></div>
+    </div>
+  </section>
+
+  <section id="tab-keys" style="display:none">
+    <div class="card">
+      <div class="toolbar">
+        <h3 style="margin:0">API Keys</h3>
+        <button class="btn btn-p" onclick="openCreateKey()">＋ Create API Key</button>
+      </div>
+      <div class="hint" style="margin-bottom:12px">Each Key can configure daily quota, concurrency, and durations; 0 = unlimited. Environment keys are always active and not listed here.</div>
+      <div id="keysTable"></div>
+    </div>
+  </section>
+
+  <section id="tab-settings" style="display:none">
+    <div class="card" style="max-width:560px">
+      <h3 style="margin-bottom:18px">⚙ Runtime Settings</h3>
+      <div class="hint" style="margin-bottom:16px">Thay đổi sẽ có hiệu lực ngay, không cần restart server. Được lưu tự động vào <code>.env.local</code>.</div>
+
+      <div class="form-group" style="margin-bottom:20px">
+        <label style="font-weight:600">Số luồng chạy song song (Max Concurrency)</label>
+        <div class="hint" style="margin:4px 0 10px">Số video được render đồng thời. Cần số tài khoản &gt;= số luồng để đạt tối đa.</div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <input type="number" id="s_concurrency" min="1" max="20" value="3" style="width:80px;padding:8px;border-radius:6px;border:1px solid var(--border);font-size:15px">
+          <button class="btn btn-p" onclick="saveSettings()">💾 Lưu</button>
+          <span id="s_status" style="font-size:13px;color:#22c55e"></span>
+        </div>
+        <div style="margin-top:10px;display:flex;gap:8px">
+          <button class="btn" onclick="setConcurrency(1)">1 luồng</button>
+          <button class="btn" onclick="setConcurrency(2)">2 luồng</button>
+          <button class="btn" onclick="setConcurrency(3)">3 luồng</button>
+          <button class="btn" onclick="setConcurrency(5)">5 luồng</button>
+          <button class="btn" onclick="setConcurrency(10)">10 luồng</button>
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-bottom:20px">
+        <label><input type="checkbox" id="s_proxy_enabled" onchange="q('#s_proxy').disabled=!this.checked"> Bật proxy cho Chromium</label>
+        <input id="s_proxy" placeholder="http://127.0.0.1:7890" style="width:100%;margin:10px 0" autocomplete="off">
+        <div class="hint">Tắt để không dùng proxy riêng. Áp dụng cho lần mở Chromium tiếp theo; không ngắt task đang chạy. Chưa hỗ trợ proxy có user/password.</div>
+        <button class="btn" id="s_proxy_test" onclick="proxyAction(false)">Kiểm tra kết nối</button>
+        <button class="btn btn-p" id="s_proxy_save" onclick="proxyAction(true)">Lưu proxy</button>
+        <div id="s_proxy_status" class="hint" role="status"></div>
+      </div>
+      <div class="form-group">
+        <label style="font-weight:600">Trạng thái hiện tại</label>
+        <div id="s_info" class="hint" style="margin-top:6px">Đang tải...</div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="dlg" class="dialog" style="display:none"><div class="box" id="dlgBox"></div></div>
+<div id="videoModal" class="dialog" style="display:none">
+  <div class="box" style="width:640px">
+    <h2>Video Preview</h2>
+    <video id="videoEl" controls autoplay style="width:100%;border-radius:8px"></video>
+    <div class="row"><button class="btn" onclick="closeVideo()">Close</button></div>
+  </div>
+</div>
+
+<script>
+const LS_KEY='dola_admin_key';
+let adminKey=localStorage.getItem(LS_KEY)||'';
+let autoRefresh=true, curTab='dash', timer=null;
+
+function q(s){return document.querySelector(s);}
+function show(id){document.getElementById(id).style.display='flex';}
+function hide(id){document.getElementById(id).style.display='none';}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function fmt(ts){if(!ts)return '-';const d=new Date(ts*1000);const p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;}
+function fmtHM(ts){const d=new Date(ts*1000);const p=n=>String(n).padStart(2,'0');return `${p(d.getHours())}:${p(d.getMinutes())}`;}
+
+async function api(path,opts={}){
+  const r=await fetch(path,{method:opts.method||'GET',headers:{'Content-Type':'application/json','X-Admin-Key':adminKey,...(opts.headers||{})},body:opts.body?JSON.stringify(opts.body):undefined});
+  if(r.status===401){showLogin();throw new Error('unauthorized');}
+  const text=await r.text();
+  let data={};try{data=text?JSON.parse(text):{};}catch(e){}
+  if(!r.ok)throw new Error(data.detail||(`${r.status} ${text.slice(0,120)}`));
+  return data;
+}
+
+function showLogin(){hide('dlg');show('loginMask');q('#loginErr').style.display='none';}
+async function submitLogin(){
+  const key=q('#loginKey').value;
+  try{await api('/api/admin/login',{method:'POST',body:{key}});}
+  catch(e){q('#loginErr').style.display='block';return;}
+  adminKey=key;localStorage.setItem(LS_KEY,key);
+  hide('loginMask');refresh();
+}
+function logout(){adminKey='';localStorage.removeItem(LS_KEY);showLogin();}
+
+function switchTab(t){
+  if(curTab==='batch'&&t!=='batch')saveBatchDraft();
+  curTab=t;
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.tab===t));
+  ['dash','generate','batch','accounts','tasks','keys','settings'].forEach(x=>{q('#tab-'+x).style.display=x===t?'block':'none';});
+  if(t==='generate') loadRecentGenTasks();
+  else if(t==='settings') loadSettings();
+  else refresh();
+}
+
+/* ===== GENERATE VIDEO TAB ===== */
+let genPollTimer=null;
+let genRecentTasks=JSON.parse(localStorage.getItem('gen_recent')||'[]');
+const refImgUrls=[];
+
+function pickPill(groupId,btn){
+  document.querySelectorAll('#'+groupId+' .pill').forEach(p=>p.classList.remove('on'));
+  btn.classList.add('on');
+}
+function pillVal(groupId){
+  const p=document.querySelector('#'+groupId+' .pill.on');
+  return p?p.dataset.val:null;
+}
+
+function addRefImg(){
+  if(refImgUrls.length>=5){alert('Maximum 5 reference images');return;}
+  const url=prompt('Enter image URL:','https://');
+  if(!url||!url.startsWith('http'))return;
+  refImgUrls.push(url);
+  renderRefImgs();
+}
+function removeRefImg(i){
+  refImgUrls.splice(i,1);
+  renderRefImgs();
+}
+function renderRefImgs(){
+  const list=q('#g_refimgs');
+  let html=refImgUrls.map((u,i)=>`
+    <div class="refimg-item">
+      <img src="${esc(u)}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 60 60%22><rect fill=%22%23eee%22 width=%2260%22 height=%2260%22/><text x=%2230%22 y=%2235%22 text-anchor=%22middle%22 fill=%22%23999%22 font-size=%2210%22>IMG</text></svg>'">
+      <button class="rm" onclick="removeRefImg(${i})">✕</button>
+    </div>`).join('');
+  if(refImgUrls.length<5) html+=`<div class="refimg-add" title="Add image URL" onclick="addRefImg()">＋</div>`;
+  list.innerHTML=html;
+}
+
+function setGenResult(html){q('#g_result').innerHTML=html;}
+
+function saveRecentTask(task){
+  genRecentTasks=genRecentTasks.filter(t=>t.id!==task.id);
+  genRecentTasks.unshift(task);
+  if(genRecentTasks.length>10) genRecentTasks=genRecentTasks.slice(0,10);
+  localStorage.setItem('gen_recent',JSON.stringify(genRecentTasks));
+  loadRecentGenTasks();
+}
+
+function loadRecentGenTasks(){
+  const el=q('#g_recent');
+  if(!el) return;
+  genRecentTasks=JSON.parse(localStorage.getItem('gen_recent')||'[]');
+  if(!genRecentTasks.length){el.innerHTML='<div class="tiny" style="text-align:center;padding:12px">No recent tasks yet</div>';return;}
+  const sb={queued:'b-gray',processing:'b-blue',completed:'b-green',failed:'b-red'};
+  el.innerHTML=genRecentTasks.map(t=>`
+    <div class="tpoll" onclick="loadTaskResult('${t.id}','${esc(t.prompt||'')}')">
+      <span class="badge ${sb[t.status]||'b-gray'}" style="font-size:11px">${t.status}</span>
+      <span class="prompt-t">${esc(t.prompt||'').slice(0,60)}</span>
+      <span class="meta-t">${t.duration||10}s · ${t.ratio||'—'}</span>
+    </div>`).join('');
+}
+
+async function loadTaskResult(taskId, prompt){
+  setGenResult(`<div class="status-bar processing"><span class="spin">⏳</span> Fetching task ${taskId.slice(-8)}…</div>`);
+  try{
+    const headers={'Content-Type':'application/json'};
+    const key=q('#g_apikey')?.value?.trim();
+    if(key) headers['Authorization']='Bearer '+key;
+    const r=await fetch('/v1/videos/'+taskId,{headers});
+    const data=await r.json();
+    renderGenResult(data,prompt);
+  }catch(e){setGenResult(`<div class="status-bar failed">Error: ${esc(e.message)}</div>`);}
+}
+
+function renderGenResult(data, prompt){
+  const statusClass={queued:'queued',processing:'processing',completed:'completed',failed:'failed'}[data.status]||'queued';
+  const statusLabel={queued:'⏳ Queued — waiting for an available account...',processing:'⚙️ '+(data.poll_detail||'Processing — waiting for a verified result...'),completed:'✅ Completed!',failed:'❌ Failed'}[data.status]||data.status;
+  if(data.status==='completed'&&data.video_url){
+    setGenResult(`
+      <div class="result-card">
+        <video src="${esc(data.video_url)}" controls autoplay muted loop></video>
+        <div class="result-info">
+          <div class="result-row">
+            <span class="badge b-green">Completed</span>
+            <div class="result-actions">
+              <a href="${esc(data.video_url)}" target="_blank" download><button class="btn">⬇ Download</button></a>
+              <button class="btn" onclick="copyUrl('${esc(data.video_url)}')">📋 Copy URL</button>
+            </div>
+          </div>
+          <div class="tiny" style="margin-top:4px">Task ID: ${esc(data.id)}</div>
+          ${prompt?`<div class="tiny" style="margin-top:2px;font-style:italic">"${esc(prompt.slice(0,80))}"</div>`:''}
+        </div>
+      </div>`);
+    saveRecentTask({id:data.id,status:'completed',prompt,ratio:data.ratio,duration:data.duration});
+    clearInterval(genPollTimer); genPollTimer=null;
+    q('#genBtn').disabled=false; q('#genBtn').textContent='⚡ Generate Video';
+  } else if(data.status==='failed'){
+    setGenResult(`<div class="status-bar failed">❌ Failed: ${esc(data.error||'Unknown error')}</div>`);
+    saveRecentTask({id:data.id,status:'failed',prompt});
+    clearInterval(genPollTimer); genPollTimer=null;
+    q('#genBtn').disabled=false; q('#genBtn').textContent='⚡ Generate Video';
+  } else {
+    setGenResult(`<div class="status-bar ${statusClass}">${statusLabel}</div>
+      <div class="tiny" style="padding:4px 2px">Task ID: ${esc(data.id)} — polling every 5s…</div>`);
+    saveRecentTask({id:data.id,status:data.status,prompt});
+  }
+}
+
+async function pollTaskStatus(taskId, prompt){
+  try{
+    const headers={'Content-Type':'application/json'};
+    const key=q('#g_apikey')?.value?.trim();
+    if(key) headers['Authorization']='Bearer '+key;
+    const r=await fetch('/v1/videos/'+taskId,{headers});
+    const data=await r.json();
+    renderGenResult(data, prompt);
+  }catch(e){/* silent, keep polling */}
+}
+
+async function submitGenerate(){
+  const prompt=(q('#g_prompt').value||'').trim();
+  if(!prompt){alert('Please enter a prompt!'); return;}
+  const model=pillVal('g_model_pills')||'seedance-2.0';
+  const ratio=pillVal('g_ratio_pills')||'9:16';
+  const duration=Number(pillVal('g_dur_pills')||10);
+  const apiKey=(q('#g_apikey').value||'').trim();
+  const body={model,prompt,ratio,duration,reference_images:refImgUrls.slice()};
+  const headers={'Content-Type':'application/json'};
+  if(apiKey) headers['Authorization']='Bearer '+apiKey;
+  q('#genBtn').disabled=true; q('#genBtn').textContent='⏳ Submitting…';
+  setGenResult(`<div class="status-bar queued"><span class="spin">⏳</span> Submitting your request…</div>`);
+  try{
+    const r=await fetch('/v1/videos/generations',{method:'POST',headers,body:JSON.stringify(body)});
+    const data=await r.json();
+    if(!r.ok) throw new Error(data.detail||JSON.stringify(data));
+    q('#genBtn').textContent='🔄 Polling…';
+    renderGenResult(data, prompt);
+    if(genPollTimer) clearInterval(genPollTimer);
+    genPollTimer=setInterval(()=>pollTaskStatus(data.id, prompt), 5000);
+  }catch(e){
+    setGenResult(`<div class="status-bar failed">❌ ${esc(e.message)}</div>`);
+    q('#genBtn').disabled=false; q('#genBtn').textContent='⚡ Generate Video';
+  }
+}
+
+function copyUrl(url){
+  try{navigator.clipboard.writeText(url);}catch(e){const t=document.createElement('textarea');t.value=url;document.body.appendChild(t);t.select();document.execCommand('copy');t.remove();}
+  alert('URL copied!');
+}
+/* ===== END GENERATE VIDEO ===== */
+
+async function refresh(){
+  if(q('#loginMask').style.display!=='none')return;
+  q('#lastUpdate').textContent='Updated at '+new Date().toLocaleTimeString();
+  try{
+    if(curTab==='dash')await loadDash();
+    else if(curTab==='accounts')await loadAccounts();
+    else if(curTab==='tasks')await loadTasks();
+    else if(curTab==='batch')await loadBatch();
+    else if(curTab==='keys')await loadKeys();
+  }catch(e){if(e.message!=='unauthorized'){/* silent */}}
+}
+
+/* ---- Dashboard ---- */
+async function loadDash(){
+  const st=await api('/api/admin/stats');
+  const sr=st.success_rate==null?'—':(st.success_rate*100).toFixed(0)+'%';
+  q('#statCards').innerHTML=`
+    <div class="stat s1"><div class="v">${st.today_completed}</div><div class="l">Completed Today</div></div>
+    <div class="stat s2"><div class="v">${st.today_failed}</div><div class="l">Failed Today</div></div>
+    <div class="stat s3"><div class="v">${sr}</div><div class="l">Success Rate</div></div>
+  <div class="stat s4"><div class="v">${st.available_accounts}/${st.total_accounts}</div><div class="l">Available · ${st.total_remaining} Left</div></div>`;
+  const max=Math.max(1,...st.per_day.map(d=>d.completed+d.failed));
+  q('#chart').innerHTML=st.per_day.map(d=>`
+    <div class="col">
+      <div class="bars">
+        <div class="bar" style="height:${Math.round(d.completed/max*100)}px;background:#00b875" title="Generated ${d.completed}"></div>
+        <div class="bar" style="height:${Math.round(d.failed/max*100)}px;background:#e5484d" title="Failed ${d.failed}"></div>
+      </div>
+      <div class="lbl">${d.day}</div>
+    </div>`).join('');
+  q('#perAccount').innerHTML=table(
+    ['Account','Status','Dispatch','Remaining Today','Total Generated','Last Used'],
+    st.per_account.map(a=>[
+      accLabel(a),
+      statusBadge(a),
+      `<label class="sw"><input type="checkbox" ${a.scheduling?'checked':''} onchange="setSched('${a.name}',this.checked)"><i></i></label>`,
+      `<b>${Math.max(0, a.limit - a.used_today)}</b> / ${a.limit}<span class="tiny"> (used: ${a.used_today})</span>`,
+      a.completed_total||0,
+      fmt(a.last_used_at)
+    ])
+  );
+}
+
+function accLabel(x){return x.email?`<div>${esc(x.email)}</div>`:'<span class="tiny">No Email</span>';}
+function statusBadge(a){
+  if(a.busy)return '<span class="badge b-blue">Generating</span>';
+  if(a.rate_limited)return '<span class="badge b-orange">Rate limited until '+fmt(a.rate_limited_until)+'</span>';
+  if(a.quota_blocked)return '<span class="badge b-orange">Quota blocked until '+fmt(a.quota_blocked_until)+'</span>';
+  if(a.cooling)return '<span class="badge b-orange">Cooldown until '+fmtHM(a.cooldown_until)+'</span>';
+  if(a.used_today >= a.limit)return '<span class="badge b-gray" title="Gateway daily counter; Verify checks login only">Local daily limit</span>';
+  if(a.login_ok===false||a.login_ok===0)return '<span class="badge b-red">Expired</span>';
+  if(a.login_ok===true||a.login_ok===1)return '<span class="badge b-green">Active</span>';
+  return '<span class="badge b-gray">Unverified</span>';
+}
+
+function table(heads,rows){
+  return `<table><thead><tr>${heads.map(h=>`<th>${h}</th>`).join('')}</tr></thead>
+    <tbody>${rows.length?rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join(''):`<tr><td colspan="${heads.length}" class="empty">No data</td></tr>`}</tbody></table>`;
+}
+
+async function setSched(name,on){
+  try{await api('/api/admin/accounts/'+name,{method:'PATCH',body:{scheduling:on}});}catch(e){alert(e.message);}refresh();
+}
+
+/* ---- Accounts ---- */
+async function loadAccounts(){
+  const [a,j]=await Promise.all([api('/api/admin/accounts'),api('/api/admin/jobs')]);
+  const jobs=j.jobs||{};
+  const rows=a.accounts.map(x=>{
+    const jb=jobs[x.name];
+    const badge=(jb&&jb.kind==='add'&&jb.status==='running')?'<span class="badge b-blue">Adding</span>'
+      :(jb&&jb.kind==='add'&&jb.status==='failed')?'<span class="badge b-red">Add Failed</span>'
+      :statusBadge(x);
+    const warn=(jb&&jb.status==='failed')?'<div class="task-error">'+esc(jb.error)+'<br><span class="tiny">Log: '+esc(jb.log_file||'logs/account-login.log')+'</span></div>':'';
+    return [
+      `<span class="account-id">${esc(x.name)}</span>`,
+      accLabel(x)+warn,
+      badge,
+      `<label class="sw"><input type="checkbox" ${x.scheduling?'checked':''} onchange="setSched('${x.name}',this.checked)"><i></i></label>`,
+      `<b>${Math.max(0, x.limit - x.used_today)}</b> / ${x.limit}`,
+      fmt(x.last_used_at),
+      fmt(x.created_at),
+      `<button class="btn" style="margin-right:6px" onclick="verify('${x.name}',this)">Verify</button><button class="btn btn-danger" onclick="delAccount('${x.name}')">Delete</button>`
+    ];
+  });
+  q('#accountsTable').innerHTML=table(['Account ID','Name','Status','Dispatch','Remaining','Last Used','Created At','Actions'],rows);
+}
+
+async function verify(name,btn){
+  btn.disabled=true;const old=btn.textContent;btn.textContent='Verifying…';
+  try{const r=await api('/api/admin/accounts/'+name+'/verify',{method:'POST'});
+    alert(name+' Session: '+(r.ok?'Active ✓':'Expired ✗'));
+  }catch(e){alert(e.message);}
+  btn.disabled=false;btn.textContent=old;refresh();
+}
+
+async function delAccount(name){
+  if(!confirm('Delete account '+name+'? This will remove its profile directory.'))return;
+  try{await api('/api/admin/accounts/'+name,{method:'DELETE'});}catch(e){alert(e.message);}refresh();
+}
+
+function openAddAccount(){
+  let def='acc2';try{const n=document.querySelectorAll('#accountsTable tbody tr').length;def='acc'+(n+1);}catch(e){}
+  showDlg(`<h2>Add Account</h2>
+    <label>Account Name</label><input id="f_name" value="${def}">
+    <label>Google Email</label><input id="f_email" placeholder="xxx@yy.asia">
+    <label>Password</label><input id="f_pass" type="password">
+    <label>TOTP Secret (2FA)</label><input id="f_totp" placeholder="2FA secret">
+    <div class="row"><button class="btn" onclick="hide('dlg')">Cancel</button><button class="btn btn-p" onclick="submitAddAccount()">Start Login</button></div>`);
+}
+
+async function downloadLatestVideos(){
+  const button=q('#downloadLatestBtn'),status=q('#downloadLatestStatus');
+  button.disabled=true;status.textContent='Đang chuẩn bị ZIP…';
+  let url;
+  try{
+    const response=await fetch('/api/admin/videos/download-latest',{method:'POST',headers:{'X-Admin-Key':adminKey}});
+    if(!response.ok){const error=await response.json();throw new Error(error.detail||'Không tải được video');}
+    const blob=await response.blob();url=URL.createObjectURL(blob);
+    const link=document.createElement('a');link.href=url;link.download='dola-videos-'+new Date().toISOString().slice(0,10)+'.zip';
+    document.body.appendChild(link);link.click();link.remove();
+    status.textContent=`Đã chuẩn bị ${response.headers.get('X-Video-Count')} video; ${response.headers.get('X-Skipped-Count')} file không còn trên máy. ZIP gồm video hoàn thành mới nhất mỗi account.`;
+  }catch(e){status.textContent='Lỗi: '+e.message;}
+  finally{button.disabled=false;if(url)setTimeout(()=>URL.revokeObjectURL(url),60000);}
+}
+
+/* ---- Batch Generate ---- */
+const batchPollTimers=new Map();
+const BATCH_DRAFT_KEY='dola_batch_draft_v1';
+let batchDraftTimer=null;
+
+function loadBatchDraft(){
+  try{
+    const parsed=JSON.parse(localStorage.getItem(BATCH_DRAFT_KEY)||'{}');
+    return {
+      apiKey:typeof parsed.apiKey==='string'?parsed.apiKey:'',
+      pastedText:typeof parsed.pastedText==='string'?parsed.pastedText:'',
+      rows:parsed.rows&&typeof parsed.rows==='object'?parsed.rows:{}
+    };
+  }catch(e){return {apiKey:'',rows:{}};}
+}
+
+let batchDraft=loadBatchDraft();
+q('#batch_paste').value=batchDraft.pastedText||'';
+
+function persistBatchDraft(){
+  try{localStorage.setItem(BATCH_DRAFT_KEY,JSON.stringify(batchDraft));}catch(e){}
+}
+
+function saveBatchDraft(){
+  if(batchDraftTimer){clearTimeout(batchDraftTimer);batchDraftTimer=null;}
+  const prompts=Array.from(document.querySelectorAll('[id^="batch_prompt_"]'));
+  batchDraft.pastedText=q('#batch_paste')?.value||'';
+  if(!prompts.length){persistBatchDraft();return;}
+  batchDraft.apiKey=q('#batch_apikey')?.value||'';
+  prompts.forEach(el=>{
+    const name=el.id.replace('batch_prompt_','');
+    batchDraft.rows[name]={
+      ...batchDraft.rows[name],
+      prompt:el.value||'',
+      refs:q('#batch_refs_'+name)?.value||'',
+      model:q('#batch_model_'+name)?.value||'seedance-2.0',
+      ratio:q('#batch_ratio_'+name)?.value||'9:16',
+      duration:q('#batch_dur_'+name)?.value||'10'
+    };
+  });
+  persistBatchDraft();
+}
+
+function scheduleBatchDraftSave(){
+  if(batchDraftTimer)clearTimeout(batchDraftTimer);
+  batchDraftTimer=setTimeout(saveBatchDraft,150);
+}
+
+function setBatchTaskState(name,state){
+  batchDraft.rows[name]={...batchDraft.rows[name],taskState:state};
+  persistBatchDraft();
+}
+
+function clearBatchPrompts(){
+  let cleared=0,kept=0;
+  document.querySelectorAll('[id^="batch_prompt_"]').forEach(el=>{
+    const name=el.id.replace('batch_prompt_','');
+    const state=batchDraft.rows[name]?.taskState;
+    if(['failed','submitting','queued','processing','poll_error'].includes(state)
+      ||batchPollTimers.has(name)||q('#batch_run_'+name)?.disabled){kept++;return;}
+    if(el.value){el.value='';cleared++;}
+  });
+  q('#batch_paste').value='';
+  saveBatchDraft();
+  q('#batchPasteStatus').textContent=`Đã dọn ${cleared} prompt; giữ ${kept} dòng Failed, đang chạy hoặc chưa sẵn sàng. Các thông số khác giữ nguyên.`;
+}
+
+function restoreBatchDraft(names){
+  const apiKey=q('#batch_apikey');
+  if(apiKey)apiKey.value=batchDraft.apiKey||'';
+  q('#batch_paste').value=batchDraft.pastedText||'';
+  names.forEach(name=>{
+    const saved=batchDraft.rows[name];
+    if(!saved)return;
+    const values={
+      ['#batch_prompt_'+name]:saved.prompt,
+      ['#batch_refs_'+name]:saved.refs,
+      ['#batch_model_'+name]:saved.model,
+      ['#batch_ratio_'+name]:saved.ratio,
+      ['#batch_dur_'+name]:String(saved.duration||'10')
+    };
+    Object.entries(values).forEach(([selector,value])=>{
+      const el=q(selector);if(el&&value!=null)el.value=value;
+    });
+  });
+}
+
+function splitBatchPrompts(text){
+  const source=text.replace(/\r\n?/g,'\n').trim();
+  const marker=/^[ \t]*Prompt[ \t]+\d+[ \t]*(?:[:.\-][ \t]*)?(?=\s|$)/gim;
+  const matches=Array.from(source.matchAll(marker));
+  if(!matches.length||source.slice(0,matches[0].index).trim())return [];
+  return matches.map((m,i)=>source.slice(m.index+m[0].length,
+    i+1<matches.length?matches[i+1].index:source.length).trim());
+}
+
+function pasteBatchPrompts(event){
+  const target=event.target;
+  if(target.id!=='batch_paste'&&!target.id?.startsWith('batch_prompt_'))return;
+  const text=event.clipboardData?.getData('text/plain')||'';
+  const prompts=splitBatchPrompts(text);
+  if(!prompts.length)return; // Ordinary single/multiline prompt paste stays native.
+  event.preventDefault();
+  distributeBatchPrompts(text);
+}
+
+function distributeBatchPrompts(text){
+  // Also recover a list that a browser/native paste put entirely in one row.
+  if(typeof text!=='string'){
+    text=q('#batch_paste').value;
+    if(!splitBatchPrompts(text).length){
+      const source=Array.from(document.querySelectorAll('[id^="batch_prompt_"]'))
+        .find(el=>splitBatchPrompts(el.value).length>1);
+      if(source)text=source.value;
+    }
+  }
+  const prompts=splitBatchPrompts(text);
+  if(!prompts.length){
+    q('#batchPasteStatus').textContent='Chưa nhận diện được danh sách. Mỗi prompt cần bắt đầu bằng Prompt 1, Prompt 2… trên một dòng mới.';
+    return;
+  }
+  q('#batch_paste').value=text;
+  const fields=Array.from(document.querySelectorAll('[id^="batch_prompt_"]'));
+  if(prompts.some(prompt=>!prompt)){
+    q('#batchPasteStatus').textContent='A numbered prompt is empty. No account prompts were changed.';
+    saveBatchDraft();return;
+  }
+  const count=Math.min(fields.length,prompts.length);
+  for(let i=0;i<count;i++)fields[i].value=prompts[i];
+  const extra=prompts.length-count;
+  q('#batchPasteStatus').textContent=`Filled ${count} account(s) from top to bottom.`+
+    (extra?` ${extra} extra prompt(s) remain in the pasted list above.`:'')+
+    (fields.length>count?' Remaining rows were left unchanged.':'');
+  saveBatchDraft();
+}
+
+function batchNativePasteFallback(event){
+  if(event.inputType!=='insertFromPaste')return;
+  const el=event.target;
+  if(el.id==='batch_paste'||el.id?.startsWith('batch_prompt_')){
+    if(splitBatchPrompts(el.value).length>1)distributeBatchPrompts(el.value);
+  }
+}
+
+function batchUnavailableReason(account){
+  if(account.busy)return 'Busy — draft preserved';
+  if(account.cooling)return 'Cooling down — draft preserved';
+  if(account.rate_limited||account.used_today>=account.limit)return 'Daily limit — draft preserved';
+  if(account.quota_blocked)return 'Insufficient quota — draft preserved';
+  if(account.credit_balance!=null&&account.credit_balance<2)return 'Low credit — draft preserved';
+  if(!account.scheduling)return 'Scheduling off — draft preserved';
+  return 'Unavailable — draft preserved';
+}
+
+function batchHeaders(apiKey){
+  const headers={'Content-Type':'application/json'};
+  if(apiKey)headers['Authorization']='Bearer '+apiKey;
+  return headers;
+}
+
+function batchReferenceImages(name){
+  return (q('#batch_refs_'+name)?.value||'')
+    .split(/[\n,]+/).map(x=>x.trim()).filter(Boolean);
+}
+
+async function loadBatch(){
+  // Capture the current DOM before an API refresh replaces the table.
+  saveBatchDraft();
+  const a=await api('/api/admin/accounts');
+  const eligible=a.accounts.filter(x=>x.scheduling&&!x.cooling&&!x.rate_limited&&!x.quota_blocked
+    &&x.used_today<x.limit&&(x.credit_balance==null||x.credit_balance>=2)&&!x.busy);
+  const eligibleNames=new Set(eligible.map(x=>x.name));
+  const byName=new Map(a.accounts.map(x=>[x.name,x]));
+  const visible=[];
+  // Keep previously edited profiles visible even while they are busy/limited.
+  [...Object.keys(batchDraft.rows),...eligible.map(x=>x.name),
+    ...a.accounts.filter(x=>x.scheduling).map(x=>x.name)].forEach(name=>{
+    if(visible.length<10&&byName.has(name)&&!visible.includes(name))visible.push(name);
+  });
+  const usable=visible.map(name=>byName.get(name));
+  const blocked=a.accounts.filter(x=>x.scheduling).length-eligible.length;
+  const overflow=Math.max(0,a.accounts.filter(x=>x.scheduling).length-usable.length);
+  q('#batchSummary').innerHTML=`Ready profiles: <b>${Math.min(eligible.length,10)}</b> / 10`
+    +(blocked>0?` · ${blocked} profile(s) unavailable, busy, or limited`:``)
+    +(overflow>0?` · ${overflow} additional profile(s) not shown`:``);
+
+  const rows=usable.map(x=>{
+    const ready=eligibleNames.has(x.name);
+    return [
+    `<span class="account-id">${esc(x.name)}</span><br>${accLabel(x)}<br><span class="tiny">${x.remaining} generation(s) left</span>`,
+    `<textarea id="batch_prompt_${x.name}" class="tiny" style="width:220px;height:72px;padding:6px" placeholder="Prompt for ${esc(x.name)}"></textarea>`,
+    `<textarea id="batch_refs_${x.name}" class="tiny" style="width:180px;height:72px;padding:6px" placeholder="Reference image URLs (optional), one per line"></textarea>`,
+    `<select id="batch_model_${x.name}" style="padding:6px"><option value="seedance-2.0">Seedance 2.0</option><option value="seedance-2.5">Seedance 2.5</option></select>`,
+    `<select id="batch_ratio_${x.name}" style="padding:6px"><option value="16:9">16:9</option><option value="9:16" selected>9:16</option><option value="1:1">1:1</option><option value="4:3">4:3</option><option value="3:4">3:4</option></select>`,
+    `<select id="batch_dur_${x.name}" style="padding:6px"><option value="10">10s</option><option value="15">15s</option><option value="30">30s</option></select>`,
+    `<div id="batch_status_${x.name}" class="tiny">${batchDraft.rows[x.name]?.taskState==='failed'?'<span class="badge b-red">Failed</span>':ready?'Idle':esc(batchUnavailableReason(x))}</div>`,
+    `<button class="btn btn-p" id="batch_run_${x.name}" onclick="submitSingleBatch('${x.name}')" style="padding:6px 12px"${ready?'':' disabled'}>Run</button>`
+  ];});
+  q('#batchTable').innerHTML=table(['Profile','Prompt','Reference images','Model','Ratio','Duration','Status','Action'],rows);
+  restoreBatchDraft(usable.map(x=>x.name));
+}
+
+async function submitSingleBatch(name){
+  saveBatchDraft();
+  const prompt=(q('#batch_prompt_'+name)?.value||'').trim();
+  if(!prompt){alert('Enter prompt for '+name);return false;}
+  const apiKey=(q('#batch_apikey')?.value||'').trim();
+  const statusEl=q('#batch_status_'+name);
+  const runBtn=q('#batch_run_'+name);
+  if(runBtn)runBtn.disabled=true;
+  setBatchTaskState(name,'submitting');
+  statusEl.innerHTML='<span class="spin">⏳</span> Submitting…';
+  try{
+    const body={
+      model:q('#batch_model_'+name).value,
+      prompt,
+      ratio:q('#batch_ratio_'+name).value,
+      duration:Number(q('#batch_dur_'+name).value),
+      reference_images:batchReferenceImages(name),
+      target_account:name
+    };
+    const r=await fetch('/v1/videos/generations',{
+      method:'POST',headers:batchHeaders(apiKey),body:JSON.stringify(body)
+    });
+    const data=await r.json();
+    if(!r.ok)throw new Error(data.detail||`HTTP ${r.status}`);
+    statusEl.innerHTML=`<span class="badge b-blue">Queued</span><br><span class="tiny">${data.id.slice(-8)}</span>`;
+    setBatchTaskState(name,'queued');
+    batchPollTask(name,data.id,apiKey);
+    return true;
+  }catch(e){
+    statusEl.innerHTML=`<span class="badge b-red">Failed</span><br><span class="tiny">${esc(e.message)}</span>`;
+    setBatchTaskState(name,'failed');
+    if(runBtn)runBtn.disabled=false;
+    return false;
+  }
+}
+
+async function submitBatchGenerate(){
+  const accounts=Array.from(document.querySelectorAll('[id^="batch_prompt_"]'))
+    .filter(el=>(el.value||'').trim()).map(el=>el.id.replace('batch_prompt_','')).slice(0,10);
+  if(!accounts.length){alert('Enter at least one prompt');return;}
+  const btn=q('#batchRunAllBtn');
+  btn.disabled=true;btn.textContent=`Submitting ${accounts.length} video(s)…`;
+  await Promise.allSettled(accounts.map(name=>submitSingleBatch(name)));
+  btn.disabled=false;btn.textContent='▶ Run up to 10 videos';
+}
+
+function batchPollTask(name,taskId,apiKey){
+  if(batchPollTimers.has(name))clearInterval(batchPollTimers.get(name));
+  const poll=async()=>{
+    const statusEl=q('#batch_status_'+name);
+    if(!statusEl){clearInterval(batchPollTimers.get(name));batchPollTimers.delete(name);return;}
+    try{
+      const r=await fetch('/v1/videos/'+taskId,{headers:batchHeaders(apiKey)});
+      const data=await r.json();
+      if(!r.ok)throw new Error(data.detail||`HTTP ${r.status}`);
+      if(data.status==='completed'&&data.video_url){
+        setBatchTaskState(name,'completed');
+        statusEl.innerHTML=`<span class="badge b-green">Done</span><br><a href="${esc(data.video_url)}" target="_blank" download><button class="btn" style="padding:2px 8px;font-size:11px">⬇ Download</button></a>`;
+        clearInterval(batchPollTimers.get(name));batchPollTimers.delete(name);
+        const runBtn=q('#batch_run_'+name);if(runBtn)runBtn.disabled=false;
+      }else if(data.status==='failed'){
+        setBatchTaskState(name,'failed');
+        statusEl.innerHTML=`<span class="badge b-red">Failed</span><br><span class="tiny">${esc(data.error||'Unknown error')}</span>`;
+        clearInterval(batchPollTimers.get(name));batchPollTimers.delete(name);
+        const runBtn=q('#batch_run_'+name);if(runBtn)runBtn.disabled=false;
+      }else{
+        setBatchTaskState(name,data.status);
+        statusEl.innerHTML=`<span class="badge b-blue">${esc(data.status)}</span><br><span class="tiny">${taskId.slice(-8)} ${esc(data.poll_detail||'')}</span>`;
+      }
+    }catch(e){
+      setBatchTaskState(name,'poll_error');
+      statusEl.innerHTML=`<span class="badge b-red">Poll error</span><br><span class="tiny">${esc(e.message)}</span>`;
+      clearInterval(batchPollTimers.get(name));batchPollTimers.delete(name);
+      const runBtn=q('#batch_run_'+name);if(runBtn)runBtn.disabled=false;
+    }
+  };
+  const interval=setInterval(poll,5000);
+  batchPollTimers.set(name,interval);
+  poll();
+}
+
+async function submitAddAccount(){
+  const body={name:q('#f_name').value.trim(),email:q('#f_email').value.trim(),password:q('#f_pass').value,totp:q('#f_totp').value.trim()};
+  if(!body.name||!body.email||!body.password)return alert('Please enter account name, email and password');
+  try{await api('/api/admin/accounts',{method:'POST',body});}catch(e){return alert(e.message);}
+  hide('dlg');refresh();
+}
+
+/* ---- Task Queue ---- */
+async function loadTasks(){
+  const r=await api('/api/admin/tasks?limit=50');
+  const sb={'queued':'<span class="badge b-gray">Queued</span>','processing':'<span class="badge b-blue">Processing</span>','completed':'<span class="badge b-green">Completed</span>','failed':'<span class="badge b-red">Failed</span>'};
+  const rows=r.tasks.map(t=>{
+    const hasConvId=!!t.conversation_id;
+    let actions='';
+    if(t.status==='failed'&&hasConvId)
+      actions+=`<button class="btn" style="margin-right:4px" onclick="taskAction('${t.id}','resume')" title="Resume: reopen conversation and poll">▶ Resume</button>`;
+    if(t.status==='failed')
+      actions+=`<button class="btn" style="margin-right:4px" onclick="taskAction('${t.id}','retry')" title="Retry: re-submit from scratch">↺ Retry</button>`;
+    if(t.status==='processing'||t.status==='queued')
+      actions+=`<button class="btn btn-danger" onclick="taskAction('${t.id}','cancel')" title="Mark as cancelled">✕ Cancel</button>`;
+    const lastPoll=t.last_poll_at>1?`<div class="tiny">Polled ${fmt(t.last_poll_at)}<br>${esc(t.poll_detail||'')}</div>`:'';
+    return [
+      `<span class="tiny" title="${esc(t.id)}">${t.id.replace('video_','').slice(0,10)}</span>`,
+      `<span class="prompt" title="${esc(t.prompt||'')}">${esc(t.prompt||'')}</span>`,
+      esc(t.account||t.target_account||'—'),
+      esc(t.api_key_name||'—'),
+      (t.duration||10)+'s',
+      (sb[t.status]||`<span class="badge b-gray">${esc(t.status)}</span>`)+lastPoll,
+      fmt(t.created_at),
+      t.video_url
+        ?`<div class="video-wrap"><a href="${esc(t.video_url)}" target="_blank">Open</a><button class="btn" onclick="playVideo(&quot;${esc(t.video_url)}&quot;)">Preview</button></div>`
+        :(t.status==='failed'
+          ?`<div class="task-error"><span class="tiny">${esc(t.error||'')}</span>${t.conversation_id?`<div class="tiny">conv:${esc(t.conversation_id)}</div>`:''}</div>`
+          :'—'),
+      actions||'—'
+    ];
+  });
+  const openState=new Map(Array.from(q('#tasksTable').querySelectorAll('details[data-account]'))
+    .map(el=>[el.dataset.account,el.open]));
+  const groups=new Map();
+  r.tasks.forEach((task,index)=>{
+    const name=task.account||task.target_account||'';
+    if(!groups.has(name))groups.set(name,[]);
+    groups.get(name).push({task,row:rows[index]});
+  });
+  const active=items=>items.some(({task})=>['processing','queued'].includes(task.status));
+  const ordered=Array.from(groups).sort(([a,itemsA],[b,itemsB])=>
+    Number(active(itemsB))-Number(active(itemsA)) ||
+    (a&&b?a.localeCompare(b,undefined,{numeric:true}):a?-1:b?1:0));
+  q('#tasksTable').innerHTML=ordered.map(([name,items])=>{
+    const count=status=>items.filter(({task})=>task.status===status).length;
+    const badges=[['processing','Đang chạy','b-blue'],['queued','Đang chờ','b-gray'],
+      ['completed','Hoàn thành','b-green'],['failed','Lỗi','b-red']]
+      .filter(([status])=>count(status)>0)
+      .map(([status,label,cls])=>`<span class="badge ${cls}">${label}: ${count(status)}</span>`).join('');
+    const sorted=items.slice().sort((a,b)=>Number(active([b]))-Number(active([a])));
+    const opened=openState.has(name)?openState.get(name):true;
+    return `<details class="task-account" data-account="${esc(name)}"${opened?' open':''}>
+      <summary><strong>${esc(name||'Chưa gán account')}</strong><span class="tiny">${items.length} task</span>
+      <span class="task-account-counts">${badges}</span></summary>
+      <div class="task-account-body">${table(['Task ID','Prompt','Account','Client','Dur','Status','Created','Video / Error','Actions'],sorted.map(x=>x.row))}</div>
+      </details>`;
+  }).join('')||'<div class="empty">Chưa có task nào.</div>';
+}
+
+async function taskAction(taskId, action){
+  const labels={resume:'Resume this task?',retry:'Re-run from scratch?',cancel:'Cancel this stuck task?'};
+  if(!confirm(labels[action]||action+'?')) return;
+  try{
+    await api('/api/admin/tasks/'+taskId+'/'+action,{method:'POST'});
+    await loadTasks();
+  }catch(e){alert(e.message);}
+}
+
+async function clearFailedTasks(){
+  if(!confirm('Are you sure you want to delete ALL failed tasks? This cannot be undone.')) return;
+  try{
+    await api('/api/admin/tasks/failed', {method:'DELETE'});
+    await loadTasks();
+  }catch(e){alert(e.message);}
+}
+
+function playVideo(url){q('#videoEl').src=url;show('videoModal');}
+function closeVideo(){q('#videoEl').pause();q('#videoEl').src='';hide('videoModal');}
+
+/* ---- API Keys ---- */
+async function loadKeys(){
+  const r=await api('/api/admin/keys');
+  const mask=k=>'sk-'+k.slice(3,9)+'…'+k.slice(-4);
+  const rows=r.keys.map(k=>[
+    '<span style="font-family:monospace">'+mask(k.key)+'</span>',
+    k.name||'—',
+    (k.allowed_durations||[]).join(' / ')+' s',
+    (k.daily_limit?`${k.today_total} / ${k.daily_limit}`:`${k.today_total} / Unlimited`),
+    (k.concurrency_limit?`${k.today_active} / ${k.concurrency_limit}`:`${k.today_active} / Unlimited`)+(k.today_queued?` <span class=\"tiny\">Queued ${k.today_queued}</span>`:''),
+    `<label class="sw"><input type="checkbox" ${k.enabled?'checked':''} onchange="setKey('${k.key}',this.checked)"><i></i></label>`,
+    fmt(k.last_used_at),
+    `<button class="btn" style="margin-right:6px" onclick="openEditKey('${k.key}')">Config</button><button class="btn btn-danger" onclick="delKey('${k.key}')">Delete</button>`
+  ]);
+  q('#keysTable').innerHTML=table(['Key','Name','Allowed Duration','Tasks Today','Concurrency','Enabled','Last Used','Actions'],rows)
+    +(r.env_keys>0?`<div class="hint" style="margin-top:10px">${r.env_keys} environment key(s) (always valid, read-only)</div>`:"");
+}
+async function setKey(key,on){
+  try{await api('/api/admin/keys/'+encodeURIComponent(key),{method:'PATCH',body:{enabled:on}});}catch(e){alert(e.message);}refresh();
+}
+async function delKey(key){
+  if(!confirm('Delete this API key? External callers will fail immediately.'))return;
+  try{await api('/api/admin/keys/'+encodeURIComponent(key),{method:'DELETE'});}catch(e){alert(e.message);}refresh();
+}
+function durationChecks(values){
+  values=values||[10,15,30];
+  return [10,15,30].map(v=>`<label style="display:inline-flex;align-items:center;gap:4px;margin-right:12px"><input type="checkbox" id="f_d${v}" ${values.includes(v)?'checked':''}>${v}s</label>`).join('');
+}
+function openCreateKey(){
+  showDlg(`<h2>Create API Key</h2>
+    <label>Name (Optional)</label><input id="f_kname" placeholder="e.g. Client A">
+    <label>Daily Task Limit (0 = Unlimited)</label><input id="f_daily" type="number" min="0" value="0">
+    <label>Concurrency Limit (0 = Unlimited)</label><input id="f_conc" type="number" min="0" value="0">
+    <label>Allowed Video Durations</label><div style="padding:8px 0">${durationChecks()}</div>
+    <label>Expiration Timestamp (Optional, Empty = Permanent)</label><input id="f_exp" type="number" min="0" placeholder="Unix Timestamp">
+    <div class="row"><button class="btn" onclick="hide('dlg')">Cancel</button><button class="btn btn-p" onclick="submitCreateKey()">Create</button></div>`);
+}
+function selectedDurations(){return [10,15,30].filter(v=>q('#f_d'+v)?.checked);}
+async function submitCreateKey(){
+  const name=q('#f_kname').value.trim();
+  const allowed=selectedDurations();
+  if(!allowed.length)return alert('Please select at least one duration');
+  const body={name,daily_limit:Number(q('#f_daily').value||0),concurrency_limit:Number(q('#f_conc').value||0),allowed_durations:allowed};
+  const exp=q('#f_exp').value.trim();if(exp)body.expires_at=Number(exp);
+  try{
+    const r=await api('/api/admin/keys',{method:'POST',body});
+    const k=r.created.key;
+    hide('dlg');
+    showDlg(`<h2>Key Created Successfully</h2>
+      <div class="tiny">Full API key is only displayed once:</div>
+      <div class="keyfull" id="newKey">${esc(k)}</div>
+      <div class="row"><button class="btn" onclick="copyFromNewKey()">Copy</button><button class="btn btn-p" onclick="hide('dlg');loadKeys()">Done</button></div>`);
+  }catch(e){alert(e.message);}
+}
+async function openEditKey(key){
+  const r=await api('/api/admin/keys');const k=r.keys.find(x=>x.key===key);if(!k)return;
+  showDlg(`<h2>Configure API Key</h2>
+    <div class="tiny" style="margin-bottom:8px">${esc(k.name||key)}</div>
+    <label>Daily Task Limit (0 = Unlimited)</label><input id="f_daily" type="number" min="0" value="${k.daily_limit}">
+    <label>Concurrency Limit (0 = Unlimited)</label><input id="f_conc" type="number" min="0" value="${k.concurrency_limit}">
+    <label>Allowed Video Durations</label><div style="padding:8px 0">${durationChecks(k.allowed_durations)}</div>
+    <label>Expiration Timestamp (0 = Permanent)</label><input id="f_exp" type="number" min="0" value="${k.expires_at||0}">
+    <div class="row"><button class="btn" onclick="hide('dlg')">Cancel</button><button class="btn btn-p" onclick="submitEditKey('${key}')">Save</button></div>`);
+}
+async function submitEditKey(key){
+  const allowed=selectedDurations();if(!allowed.length)return alert('Please select at least one duration');
+  try{await api('/api/admin/keys/'+encodeURIComponent(key),{method:'PATCH',body:{daily_limit:Number(q('#f_daily').value||0),concurrency_limit:Number(q('#f_conc').value||0),allowed_durations:allowed,expires_at:Number(q('#f_exp').value||0)}});hide('dlg');refresh();}catch(e){alert(e.message);}
+}
+function copyFromNewKey(){copy(q('#newKey').textContent.trim());}
+async function copy(text){
+  try{await navigator.clipboard.writeText(text);}catch(e){
+    const t=document.createElement('textarea');t.value=text;document.body.appendChild(t);t.select();document.execCommand('copy');t.remove();
+  }
+}
+
+function showDlg(html){q('#dlgBox').innerHTML=html;show('dlg');}
+
+/* ===== SETTINGS TAB ===== */
+async function loadSettings(){
+  try{
+    const d=await api('/api/admin/settings');
+    q('#s_concurrency').value=d.max_concurrency_current;
+    q('#s_proxy_enabled').checked=!!d.proxy_enabled;
+    q('#s_proxy').value=d.proxy||'';
+    q('#s_proxy').disabled=!d.proxy_enabled;
+    q('#s_info').innerHTML=`
+      <b>Luồng tối đa:</b> ${d.max_concurrency_current} &nbsp;|&nbsp;
+      <b>Timeout video:</b> ${d.video_timeout}s &nbsp;|&nbsp;
+      <b>Semaphore còn:</b> ${d.semaphore_value} slot trống`;
+  }catch(e){q('#s_info').textContent='Không tải được settings: '+e.message;}
+}
+
+async function saveSettings(){
+  const v=Number(q('#s_concurrency').value);
+  if(!v||v<1||v>20){alert('Số luồng phải từ 1 đến 20');return;}
+  try{
+    const d=await api('/api/admin/settings',{method:'PATCH',body:{max_concurrency:v}});
+    q('#s_status').textContent=`✓ Đã lưu: ${d.max_concurrency} luồng`;
+    await loadSettings();
+    setTimeout(()=>{q('#s_status').textContent='';},3000);
+  }catch(e){alert('Lỗi: '+e.message);}
+}
+
+async function proxyAction(save){
+  const enabled=q('#s_proxy_enabled').checked;
+  const proxy=enabled?q('#s_proxy').value.trim():'';
+  if(enabled&&!proxy){q('#s_proxy_status').textContent='Nhập địa chỉ proxy hoặc tắt proxy.';return;}
+  q('#s_proxy_test').disabled=q('#s_proxy_save').disabled=true;
+  q('#s_proxy_status').textContent=save?'Đang lưu…':'Đang kiểm tra (tối đa khoảng 25 giây)…';
+  try{
+    const result=await api(save?'/api/admin/settings':'/api/admin/settings/proxy-test',{
+      method:save?'PATCH':'POST',body:{proxy}});
+    q('#s_proxy_status').textContent=(result.ok?'✓ ':'✗ ')+result.message;
+  }catch(e){q('#s_proxy_status').textContent='Lỗi: '+e.message;}
+  finally{q('#s_proxy_test').disabled=q('#s_proxy_save').disabled=false;}
+}
+
+function setConcurrency(n){
+  q('#s_concurrency').value=n;
+  saveSettings();
+}
+
+/* Init: auth check */
+(async function boot(){
+  try{ await api('/api/admin/accounts'); hide('loginMask'); refresh(); }
+  catch(e){ /* 401 handled */ }
+})();
+q('#batch_apikey').addEventListener('input',scheduleBatchDraftSave);
+q('#batchTable').addEventListener('input',scheduleBatchDraftSave);
+q('#batchTable').addEventListener('change',scheduleBatchDraftSave);
+q('#tab-batch').addEventListener('paste',pasteBatchPrompts);
+q('#tab-batch').addEventListener('input',batchNativePasteFallback);
+q('#batch_paste').addEventListener('input',scheduleBatchDraftSave);
+window.addEventListener('beforeunload',saveBatchDraft);
+timer=setInterval(()=>{if(autoRefresh&&curTab!=='batch')refresh();},10000);
+</script>
+</body>
+</html>

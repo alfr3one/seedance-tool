@@ -1,0 +1,33 @@
+{
+  "name": "dola-render-gateway",
+  "version": "1.0.2",
+  "description": "A high-performance session coordinator and OpenAI-compatible video generation API service.",
+  "main": "desktop/main.cjs",
+  "scripts": {
+    "desktop": "electron .",
+    "desktop:backend": "node desktop/build-backend.cjs",
+    "desktop:pack": "npm run desktop:backend && electron-builder --win --dir --config desktop/builder.cjs",
+    "desktop:installer": "npm run desktop:backend && electron-builder --win nsis --x64 --config desktop/builder.cjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/coll3879xx-cyber/dola-render-gateway.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/coll3879xx-cyber/dola-render-gateway/issues"
+  },
+  "homepage": "https://github.com/coll3879xx-cyber/dola-render-gateway#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^22.20.2",
+    "electron": "^44.3.0",
+    "electron-builder": "^26.15.3"
+  },
+  "dependencies": {
+    "playwright": "^1.63.0"
+  }
+}

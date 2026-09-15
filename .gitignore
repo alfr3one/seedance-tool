@@ -1,0 +1,46 @@
+# --- secrets / local config ---
+.env.local
+cookies.txt
+*.log
+
+# --- account state (contains real login sessions + emails) ---
+accounts/
+
+# --- databases (API keys, task history, account metadata) ---
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# --- generated media ---
+downloads/
+
+# --- probe / debug artifacts (contain live session snippets) ---
+/*.html
+/*.png
+/*.jpg
+/*.json
+!package.json
+!package-lock.json
+/*.txt
+!requirements.txt
+!README.md
+
+# --- one-off debug script (contains a signed CDN url) ---
+dl_now.py
+
+# --- python ---
+__pycache__/
+.venv/
+.runtime-check/
+.desktop-build/
+dist-desktop/
+*.pyc
+
+# Playwright
+node_modules/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
