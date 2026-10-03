@@ -5,3 +5,6 @@ pydantic
 patchright
 python-dotenv
 pillow
+numpy
+opencv-python-headless
+tzdata

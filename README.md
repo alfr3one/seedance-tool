@@ -1,5 +1,7 @@
 # Dola Render Gateway
 
+> العربية: دليل التشغيل خطوة بخطوة في [README_AR.md](README_AR.md).
+
 Dola Render Gateway la bo dieu phoi tao video qua Dola AI, gom backend FastAPI, dashboard quan ly account/task/API key va ban desktop Windows dong goi bang Electron.
 
 Project nay duoc toi uu cho luong cong viec thuc te:
@@ -130,6 +132,17 @@ Chi tiet hanh vi:
 - Account chua co video hoan thanh se bi bo qua va duoc tinh vao so skipped.
 - Neu batch moi nhat cua account bi failed/chua xong, ZIP co the lay video thanh cong cu hon cua account do.
 - Day khong phai chuc nang export toan bo lich su.
+
+## Chay nhanh bang script
+
+Chi can Python 3.10+ (khuyen dung 3.12), khong can Node/npm:
+
+- Windows: double-click `start-windows.bat`.
+- macOS/Linux: `bash start-mac-linux.sh`.
+
+Lan chay dau, script tao `.venv`, cai `requirements.txt` va Patchright Chromium, tao `.env.local` khong dung proxy neu chua co, roi mo dashboard `http://127.0.0.1:8000/` (chi nghe tren `127.0.0.1`). Cac lan sau chi khoi dong server; dependency duoc cai lai khi `requirements.txt` thay doi. Doi port: `start-windows.bat 8001` hoac `bash start-mac-linux.sh 8001`.
+
+Huong dan tieng Arab: [README_AR.md](README_AR.md).
 
 ## Chay CLI/dev server
 
