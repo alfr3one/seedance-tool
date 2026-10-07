@@ -38,7 +38,7 @@ Build on Windows with Node/npm and the project's Python virtual environment:
 
 ```
 npm install
-.venv\Scripts\python.exe -m pip install -r requirements.txt pyinstaller tzdata opencv-python
+.venv\Scripts\python.exe -m pip install -r requirements.txt pyinstaller
 npm run desktop:pack
 node desktop/smoke.cjs
 ```
